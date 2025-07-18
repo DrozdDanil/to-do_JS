@@ -16,3 +16,28 @@ li {
     list-style-type: none;
     padding-left: 0px;
 }
+
+
+.task-content {
+    margin: 0 10px;
+}
+
+/* Стиль для выполненных задач */
+.task-content.completed {
+    text-decoration: line-through;
+    color: #999;
+    opacity: 0.5;
+}
+
+/* Стиль для чекбокса */
+.task-checkbox {
+    cursor: pointer;
+}
+
+/* Стиль кнопки удаления */
+.delete-button {
+    background: #ff4444;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
