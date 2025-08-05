@@ -12,15 +12,18 @@
 </head>
 <body>
     <h1>To-Do List</h1>
-    <input type="text" id="taskInput" placeholder="Введите задачу">
-    <button id="addTaskBtn">Добавить задачу</button>
-    <div id="tabs">
-        <input checked id="tab-btn-all" name="tab-btn" type="radio" value="">
-        <label for="tab-btn-1">All</label>
-        <input checked id="tab-btn-active" name="tab-btn" type="radio" value="">
-        <label for="tab-btn-1">Active</label>
-        <input checked id="tab-btn-completed" name="tab-btn" type="radio" value="">
-        <label for="tab-btn-1">Completed</label>
+    <input type="text" id="taskInput" placeholder="Enter a task">
+    <button id="addTaskBtn">Enter a task</button>
+    <!-- add modal  -->
+    <div class="tabs-container">
+       <div id="tabs">
+            <input class="tab" data-target="all" checked id="tab-btn-all" name="tab-btn" type="radio" value="">
+            <label for="tab-btn-all">All</label>
+            <input class="tab" data-target="active" id="tab-btn-active" name="tab-btn" type="radio" value="">
+            <label for="tab-btn-active">Active</label>
+            <input class="tab" data-target="completed" id="tab-btn-completed" name="tab-btn" type="radio" value="">
+            <label for="tab-btn-completed">Completed</label>
+        </div> 
     </div>
     <p></p>
     <ul id="taskList"></ul>

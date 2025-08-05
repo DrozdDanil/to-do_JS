@@ -1,127 +1,160 @@
 const addTaskBtn = document.getElementById('addTaskBtn');
-let taskInput = document.getElementById('taskInput');
-let taskList = document.getElementById('taskList');
+const taskInput = document.getElementById('taskInput');
+const taskList = document.getElementById('taskList');
 
-addTaskBtn.addEventListener('click', () => { //добавить, чтоб при срабатывании Enter
-    if (taskInput.value.trim() === ''){
-        alert('Заполните пустое поле!');
-    } else { 
-        addTask();
+(function(){
+    document.getElementById('tab-btn-all').checked = true;
+})();
+
+class Task {
+    constructor(text){
+        this.text = text.trim();
+        this.date = new Date();
+        this.completed = false;
+        this.element = this.createSomeTask();
     }
+
+    createSomeTask(){
+        const taskLi = document.createElement('li');
+        taskLi.classList.add('task');
+
+        const contentContainer = document.createElement('div');
+        contentContainer.classList.add('content-container');
+
+        this.checkbox = this.createCheckbox();
+        this.content = this.createContent();
+        this.deleteBtn = this.createDeleteButton();
+        this.timeOfCreationEl = this.createTimeOfCreation();
+
+        const topRow = document.createElement('div');
+        topRow.classList.add('top-row');
+        topRow.append(this.checkbox, this.content, this.deleteBtn);
+
+        contentContainer.append(topRow, this.timeOfCreationEl);
+        taskLi.appendChild(contentContainer);
+
+        return taskLi;
+    }
+
+    createCheckbox(){
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.classList.add('task-checkbox');
+        checkbox.checked = this.completed;
+        checkbox.addEventListener('change', () => this.toggleComplete());
+        return checkbox;
+    }
+
+    createContent(){
+        const content = document.createElement('span');
+        content.classList.add('task-content');
+        if(this.completed){
+            content.classList.add('completed');
+        }
+
+        const visibleText = this.getVisibleText();
+        content.textContent = visibleText.text;
+        if(visibleText.isTrunc){
+            content.title = this.text;
+        } 
+        return content;
+    }
+    
+    getVisibleText(){
+        const MAX_TEXT_LENGTH = 15;
+        const normText = this.text.replace(/\s+/g, ' ');
+        if(normText.length > MAX_TEXT_LENGTH){
+            return{
+                text: normText.slice(0, 15) + '…',
+                isTrunc: true,
+            };
+        }
+        return{
+            text: normText,
+            isTrunc: false,
+        }
+    }
+
+    createDeleteButton(){
+        const button = document.createElement('button');
+        button.textContent = '×';
+        button.classList.add('delete-button');
+        button.addEventListener('click', () => this.remove());
+        return button;
+    }
+
+    createTimeOfCreation(){
+        const timeOfCreationEl = document.createElement('time');
+        timeOfCreationEl.classList.add('time');
+        timeOfCreationEl.textContent = this.date.toLocaleString().slice(0, -3);
+        return timeOfCreationEl;
+    }
+
+    toggleComplete(){
+        this.completed = this.checkbox.checked;
+        this.content.classList.toggle('completed', this.completed);
+        filterTasks(getActiveFilter());
+    }
+
+    remove(){
+        this.element.remove();
+    }
+
+    processing(){
+        taskList.prepend(this.element);
+    }
+}
+
+function filterTasks(filterType) {
+    const tasks = document.querySelectorAll('.task');
+    
+    tasks.forEach(taskEl => {
+        const isCompleted = taskEl.querySelector('.task-checkbox').checked;
+        
+        switch(filterType) {
+            case 'all':
+                taskEl.style.display = 'block';
+                break;
+            case 'active':
+                taskEl.style.display = isCompleted ? 'none' : 'block';
+                break;
+            case 'completed':
+                taskEl.style.display = isCompleted ? 'block' : 'none';
+                break;
+        }
+    });
+}
+
+function getActiveFilter(){
+    const activeTab = document.querySelector('.tab:checked');
+    return activeTab ? activeTab.dataset.target : 'all';
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('change', e => {
+        if(e.target.checked){
+            filterTasks(e.target.dataset.target);
+        }
+    })
 })
-//??????????????????????????????????????????????????????????????????????
-taskInput.addEventListener('keydown', (e) => {
-    let key = e.which || e.keyCode;  //что-то другое, это устарело
-    //по типу: if(e.key === 'Enter' || e.keyCode === 13){}
-    if(key === 13 ){
+
+function validAddTask(){
     if(taskInput.value.trim() === ''){
-        alert('Заполните путое поле!');
-    } else {
-        addTask();
-    }}
-})
-
-function addCheckBoxTask(){
-    let checkBox = document.createElement('input');
-    checkBox.type = 'checkbox';
-    checkBox.classList.add('task-checkbox');
-    return checkBox;
-}
-
-function addSpanTask(text){
-    let taskContent = document.createElement('span');
-    taskContent.classList.add('task-content');
-    taskContent.textContent = taskInput.value;
-    return taskContent;
-}
-
-function addButtonTask(){
-    let deleteTask = document.createElement('button');
-    deleteTask.textContent = 'Удалить'; //innerText and textContent what difference
-    deleteTask.classList.add('delete-button');
-    return deleteTask;
-}
-
-function addTimeTask(){
-    let now = new Date().toLocaleString().slice(0, -3);
-    let timeOfCreatingTask = document.createElement('time');
-    timeOfCreatingTask.classList.add('time');
-    timeOfCreatingTask.textContent = now.toString();
+        alert('Заполните пустое поле!');
+        return false;
+    }
     
-    return timeOfCreatingTask;
-    console.log(now);
-}
-addTimeTask();
-
-function addTask(){ 
-    let newTask = document.createElement('li');
-    let checkBox = addCheckBoxTask();
-    let taskContent = addSpanTask(taskInput.value);
-    let timeOfCreatingTask = addTimeTask(); 
-    let deleteTask = addButtonTask();
-
-    let contentContainer = document.createElement('div');
-    contentContainer.classList.add('content-container');
-
-    let topRow = document.createElement('div');
-    topRow.classList.add('top-row');
-    
-    topRow.appendChild(checkBox);
-    topRow.appendChild(taskContent);
-    topRow.appendChild(deleteTask);
-
-    contentContainer.appendChild(topRow);
-    contentContainer.appendChild(timeOfCreatingTask);
-
-    newTask.appendChild(contentContainer);
-    taskList.prepend(newTask);
+    const task = new Task(taskInput.value);
+    task.processing();
     taskInput.value = '';
+
+    filterTasks(getActiveFilter());
+    return true;
 }
 
-
-//либо проверять текст, либо привязать класс к кнопке "Удалить"
-taskList.addEventListener('click', (e) => {
-    if(e.target.classList.contains('delete-button')){
-        e.target.closest('li').remove();
+addTaskBtn.addEventListener('click', validAddTask);
+taskInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){
+        validAddTask();
     }
-});
-
-taskList.addEventListener('change', (e) => {
-    if(e.target.classList.contains('task-checkbox')){
-        console.log('pipi-pupu');
-        const taskContent = e.target.closest('li').querySelector('.task-content');
-        taskContent.classList.toggle('completed', e.target.checked);
-    }
-});
-
-
-
-
-
-// function saveTasks(){
-//     const tasks = [];
-//     const listItems = document.querySelectorAll('#taskList li');
-//     for(let i = 0; i < listItems.length; i++){ //forEach ?
-//         const taskElement = listItems[i]; 
-//         tasks.push({
-//             text: taskElement.querySelector('.task-content').textContent,
-//             completed: taskElement.querySelector('.task-checkbox').checked
-//         });
-//     }
-//     localStorage.setItem('tasks', JSON.stringify(tasks));
-// }
-
-// function loadTasks(){
-//     const savedTasks = localStorage.getItem('tasks');
-//     if(savedTasks){
-//         const tasks = JSON.parse(saveTasks);
-//         for(let i = 0; i < tasks.length; i++){
-//             taskInput.value = task.text;
-//             addTask();      
-//         }
-//     } 
-// }
-
-
-
-
+})
